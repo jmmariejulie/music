@@ -12,6 +12,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 import { ContinueSequence } from './components/ContinueSequence';
+import { TestMusic } from './components/TestMusic';
 
 function App() {
       return (
@@ -24,6 +25,9 @@ function App() {
             <li>
               <Link to="/continue">Continue sequence</Link>
             </li>
+            <li>
+              <Link to="/test">Test music</Link>
+            </li>
           </ul>
   
           <hr />
@@ -33,6 +37,9 @@ function App() {
           </Route>
           <Route path="/continue">
             <ContinueSequence />
+          </Route>
+          <Route path="/test">
+            <TestMusic />
           </Route>
         </Switch>
       </div>

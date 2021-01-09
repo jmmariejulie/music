@@ -1,5 +1,8 @@
 import React from 'react';
 
+import ButtonGroup from 'react-bootstrap/ButtonGroup'
+import Button from 'react-bootstrap/Button'
+
 import * as mm from '@magenta/music'
 
 import { SOUND_PLAYER_SOUNDFONTS_URL, saveBlob } from './Common.js';
@@ -16,7 +19,7 @@ export class StaffVisualizer extends React.Component {
     }
 
     displaySequence(sequence) {
-        var viz = new mm.StaffSVGVisualizer(sequence, this.myRef.current);
+        new mm.StaffSVGVisualizer(sequence, this.myRef.current);
     }
 
     play(sequence) {
@@ -60,12 +63,18 @@ export class StaffVisualizer extends React.Component {
         }
         return (
             <div>
-                <button onClick={() => this.play(this.props.sequence)}>
-                    Play</button>
-                <button onClick={() => this.stop()}>
-                    Stop</button>
-                <button onClick={() => this.saveOutputAsMidi(this.props.sequence)}>
-                    Save</button>
+                <ButtonGroup className="mb-2">
+                    <Button
+                        variant="primary"
+                        onClick={() => this.play(this.props.sequence)}>
+                        Play</Button>
+                    <Button
+                        variant="primary" onClick={() => this.stop()}>
+                        Stop</Button>
+                    <Button
+                        variant="primary" onClick={() => this.saveOutputAsMidi(this.props.sequence)}>
+                        Save</Button>
+                </ButtonGroup>
                 <div ref={this.myRef} width='400px' height='200px' />
             </div>
         );

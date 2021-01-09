@@ -2,10 +2,9 @@ import React from 'react';
 
 import * as mm from '@magenta/music'
 
-import { MEL_TWINKLE, MEL_TEAPOT, writeMemory } from './Common.js';
 import { StaffVisualizer } from './StaffVisualizer.js';
 
-export class Music extends React.Component {
+export class ContinueSequence extends React.Component {
     CHECKPOINTS_DIR = 'https://storage.googleapis.com/magentadata/js/checkpoints';
     SOUND_PLAYER_SOUNDFONTS_URL = 'https://storage.googleapis.com/magentadata/js/soundfonts/sgm_plus';
 
@@ -18,58 +17,6 @@ export class Music extends React.Component {
             outputSequence: undefined
         }
         this.player = new mm.SoundFontPlayer(this.SOUND_PLAYER_SOUNDFONTS_URL);
-    }
-
-    testPlayer() {
-        // Create a player to play the sequence we'll get from the model.
-        var rnnPlayer = new mm.SoundFontPlayer(this.SOUND_PLAYER_SOUNDFONTS_URL);
-
-        console.log("Play...");
-        if (rnnPlayer.isPlaying()) {
-            rnnPlayer.stop();
-            return;
-        }
-        rnnPlayer.start(MEL_TWINKLE);
-        rnnPlayer.stop();
-    }
-
-    async testContinueSong() {
-        var rnnPlayer = new mm.SoundFontPlayer(this.SOUND_PLAYER_SOUNDFONTS_URL);
-        var music_rnn = new mm.MusicRNN(this.CHECKPOINTS_DIR + '/music_rnn/basic_rnn');
-        await music_rnn.initialize();
-
-        if (rnnPlayer.isPlaying()) {
-            rnnPlayer.stop();
-            return;
-        }
-
-        music_rnn
-            .continueSequence(MEL_TWINKLE, this.rnn_steps, this.rnn_temperature)
-            .then((sample) => rnnPlayer.start(sample));
-    }
-
-    async coconetTest() {
-        var rnnPlayer = new mm.SoundFontPlayer(this.SOUND_PLAYER_SOUNDFONTS_URL);
-
-        var coconet_model = new mm.Coconet(this.CHECKPOINTS_DIR + '/coconet/bach');
-
-        //coconet_model.initialize().then(()=>console.log('Coconet: initialised=' + coconet_model.initialized));
-
-        await coconet_model.initialize();
-
-        if (rnnPlayer.isPlaying()) {
-            rnnPlayer.stop();
-            return;
-        }
-
-        var output = undefined;
-        try {
-            output = await coconet_model.infill(MEL_TEAPOT, { numIterations: 1 });
-        } catch (error) {
-            console.error(error);
-        }
-        coconet_model.dispose();
-        rnnPlayer.start(output);
     }
 
     handleInputFileChoosen = (file) => {
@@ -96,10 +43,6 @@ export class Music extends React.Component {
             .then((sample) => {
                 this.setState({ outputSequence: sample });
             });
-    }
-
-    displaySequence(sequence, canvas) {
-        var viz = new mm.PianoRollCanvasVisualizer(sequence, canvas);
     }
 
     saveOutputAsMidi(sequence) {
@@ -134,18 +77,7 @@ export class Music extends React.Component {
             </div>
             <br />
             <StaffVisualizer sequence={this.state.outputSequence} />
-            <button
-                onClick={() => this.testPlayer()}>
-                Test player
-            </button>
-            <button
-                onClick={() => this.testContinueSong()}>
-                Test continue sequence
-            </button>
-            <button
-                onClick={() => this.coconetTest()}
-            >Test coconet
-            </button>
+            
         </div>);
     }
 }

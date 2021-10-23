@@ -10,6 +10,8 @@ export class ContinueSequence extends React.Component {
 
     player = undefined;
 
+    defaultQuantization = 4;
+
     constructor(props) {
         super(props);
         this.state = {
@@ -23,7 +25,10 @@ export class ContinueSequence extends React.Component {
         console.log('handleInputFileChoosen() loading file: ' + file);
 
         let promise = mm.blobToNoteSequence(file)
-            .then((sample) => this.setState({ inputSequence: sample }));
+            .then((sample) => {
+                const quantitizedSequence = mm.sequences.quantizeNoteSequence(sample, this.defaultQuantization);
+                this.setState({ inputSequence: quantitizedSequence });
+            });
         console.log('handleInputFileChoosen() inputNotes: ' + promise);
     }
 
@@ -58,27 +63,29 @@ export class ContinueSequence extends React.Component {
 
     render() {
         console.log('Music.render() sequence:' + this.state.inputSequence);
-        return (<div>
-            <p>Music</p>
+        const inputSequenceDefined = this.state.inputSequence !== undefined;
+        return (
             <div>
-                <input
-                    type='file'
-                    id='fileInput'
-                    onChange={e => this.handleInputFileChoosen(e.target.files[0])} />
-            </div>
-            <br />
-            <StaffVisualizer sequence={this.state.inputSequence} />
-            <br />
-            <div>
-            <button
-                onClick={() => this.continueInputSequence()}>
-                Continue sequence
+                <p>Music</p>
+                <div>
+                    <input
+                        type='file'
+                        id='fileInput'
+                        onChange={e => this.handleInputFileChoosen(e.target.files[0])} />
+                </div>
+                <br />
+                <StaffVisualizer sequence={this.state.inputSequence} />
+                <br />
+                <div>
+                    <button
+                        onClick={() => this.continueInputSequence()}>
+                        Continue sequence
             </button>
-            </div>
-            <br />
-            <StaffVisualizer sequence={this.state.outputSequence} />
-            
-        </div>);
+                </div>
+                <br />
+                <StaffVisualizer sequence={this.state.outputSequence} />
+
+            </div>);
     }
 }
 

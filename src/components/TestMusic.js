@@ -52,7 +52,7 @@ export class TestMusic extends React.Component {
 
         var output = undefined;
         try {
-            output = await coconet_model.infill(MEL_TEAPOT, { numIterations: 1 });
+            output = await coconet_model.infill(MEL_TWINKLE, { numIterations: 1 });
         } catch (error) {
             console.error(error);
         }

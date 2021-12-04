@@ -28,6 +28,7 @@ export class StaffVisualizer extends React.Component {
             if (this.player.isPlaying()) {
                 this.player.stop();
             }
+            this.player.setTempo(200);
             this.player.start(sequence);
             this.player.stop();
         }

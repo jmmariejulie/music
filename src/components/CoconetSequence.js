@@ -37,13 +37,12 @@ export class CoconetSequence extends React.Component {
         var coconet_model = new mm.Coconet(this.CHECKPOINTS_DIR + '/coconet/bach');
         await coconet_model.initialize();
 
-        if (this.player.isPlaying()) {
-            this.player.stop();
-        }
-
         try {
             const quantitizedInputSequence = mm.sequences.quantizeNoteSequence(this.state.inputSequence, 4);
             var outputSequence = await coconet_model.infill(quantitizedInputSequence, { numIterations: 10, temperature: parseFloat(0.99) });
+
+            // https://magenta.github.io/magenta-js/music/modules/_core_sequences_.html#mergeconsecutivenotes
+            outputSequence = mm.sequences.mergeConsecutiveNotes(outputSequence);
             this.setState({ outputSequence: outputSequence });
         } catch (error) {
             console.error(error);
@@ -68,7 +67,7 @@ export class CoconetSequence extends React.Component {
         const inputSequenceDefined = this.state.inputSequence !== undefined;
         return (
             <div>
-                <p>Music</p>
+                <p>Coconet</p>
                 <div>
                     <input
                         type='file'

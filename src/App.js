@@ -12,6 +12,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 import { ContinueSequence } from './components/ContinueSequence';
+import { CoconetSequence } from './components/CoconetSequence';
 import { TestMusic } from './components/TestMusic';
 
 function App() {
@@ -26,6 +27,9 @@ function App() {
               <Link to="/continue">Continue sequence</Link>
             </li>
             <li>
+              <Link to="/coconet">Coconet sequence</Link>
+            </li>
+            <li>
               <Link to="/test">Test music</Link>
             </li>
           </ul>
@@ -37,6 +41,9 @@ function App() {
           </Route>
           <Route path="/continue">
             <ContinueSequence />
+          </Route>
+          <Route path="/coconet">
+            <CoconetSequence />
           </Route>
           <Route path="/test">
             <TestMusic />

@@ -39,10 +39,18 @@ export class CoconetSequence extends React.Component {
 
         try {
             const quantitizedInputSequence = mm.sequences.quantizeNoteSequence(this.state.inputSequence, 4);
-            var outputSequence = await coconet_model.infill(quantitizedInputSequence, { numIterations: 10, temperature: parseFloat(0.99) });
+            var outputSequence = await coconet_model.infill(this.state.inputSequence, { numIterations: 10, temperature: parseFloat(0.99) });
 
             // https://magenta.github.io/magenta-js/music/modules/_core_sequences_.html#mergeconsecutivenotes
             outputSequence = mm.sequences.mergeConsecutiveNotes(outputSequence);
+            outputSequence.tempos = this.state.inputSequence.tempos;
+            outputSequence.timeSignatures = quantitizedInputSequence.timeSignatures;
+            outputSequence.controlChanges = quantitizedInputSequence.controlChanges;
+            outputSequence.quantizationInfo = quantitizedInputSequence.quantizationInfo;
+            outputSequence.ticksPerQuarter = quantitizedInputSequence.ticksPerQuarter;
+            outputSequence.totalTime = quantitizedInputSequence.totalTime;
+            // unquantitize sequence in order to compute the starttime for each note
+            outputSequence =  mm.sequences.unquantizeSequence(outputSequence, 30);
             this.setState({ outputSequence: outputSequence });
         } catch (error) {
             console.error(error);

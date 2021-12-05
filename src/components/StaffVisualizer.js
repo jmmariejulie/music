@@ -7,7 +7,6 @@ import * as mm from '@magenta/music'
 
 import { SOUND_PLAYER_SOUNDFONTS_URL, saveBlob } from './Common.js';
 
-
 export class StaffVisualizer extends React.Component {
     player = undefined;
 

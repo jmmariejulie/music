@@ -10,6 +10,8 @@ import {
 // BOOTSTRAP
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+// Megenta API documentation
+// https://magenta.github.io/magenta-js/music/globals.html
 
 import { ContinueSequence } from './components/ContinueSequence';
 import { CoconetSequence } from './components/CoconetSequence';

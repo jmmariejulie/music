@@ -2,6 +2,7 @@ import React from 'react';
 
 import * as mm from '@magenta/music'
 import { StaffVisualizer } from './StaffVisualizer.js';
+import { RecorderComponent } from './RecorderComponent';
 
 // See https://coconet.glitch.me/#67:3:0,67:4:0,67:19:0,67:20:0,65:2:0,65:5:0,65:18:0,65:21:0,64:0:0,64:1:0,64:6:0,64:11:0,64:12:0,64:16:0,64:17:0,64:22:0,64:27:0,62:7:0,62:10:0,62:14:0,62:23:0,62:26:0,62:28:0,61:30:0,60:8:0,60:9:0,60:24:0,60:25:0
 
@@ -10,6 +11,7 @@ export class CoconetSequence extends React.Component {
     SOUND_PLAYER_SOUNDFONTS_URL = 'https://storage.googleapis.com/magentadata/js/soundfonts/sgm_plus';
 
     player = undefined;
+    recorder = new mm.Recorder();
 
     defaultQuantization = 4;
 
@@ -38,7 +40,7 @@ export class CoconetSequence extends React.Component {
         await coconet_model.initialize();
 
         try {
-            const quantitizedInputSequence = mm.sequences.quantizeNoteSequence(this.state.inputSequence, 4);
+            const quantitizedInputSequence = mm.sequences.quantizeNoteSequence(this.state.inputSequence, this.defaultQuantization);
             var outputSequence = await coconet_model.infill(this.state.inputSequence, { numIterations: 10, temperature: parseFloat(0.99) });
 
             // https://magenta.github.io/magenta-js/music/modules/_core_sequences_.html#mergeconsecutivenotes
@@ -50,7 +52,7 @@ export class CoconetSequence extends React.Component {
             outputSequence.ticksPerQuarter = quantitizedInputSequence.ticksPerQuarter;
             outputSequence.totalTime = quantitizedInputSequence.totalTime;
             // unquantitize sequence in order to compute the starttime for each note
-            outputSequence =  mm.sequences.unquantizeSequence(outputSequence, 30);
+            outputSequence =  mm.sequences.unquantizeSequence(outputSequence, 60);
             this.setState({ outputSequence: outputSequence });
         } catch (error) {
             console.error(error);
@@ -81,6 +83,9 @@ export class CoconetSequence extends React.Component {
                         type='file'
                         id='fileInput'
                         onChange={e => this.handleInputFileChoosen(e.target.files[0])} />
+                </div>
+                <div>
+                    <RecorderComponent/>
                 </div>
                 <br />
                 <StaffVisualizer sequence={this.state.inputSequence} />

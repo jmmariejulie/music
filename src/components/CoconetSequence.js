@@ -22,6 +22,7 @@ export class CoconetSequence extends React.Component {
             outputSequence: undefined
         }
         this.player = new mm.SoundFontPlayer(this.SOUND_PLAYER_SOUNDFONTS_URL);
+        this.setInputSequence = this.setInputSequence.bind(this);
     }
 
     handleInputFileChoosen = (file) => {
@@ -41,7 +42,7 @@ export class CoconetSequence extends React.Component {
 
         try {
             const quantitizedInputSequence = mm.sequences.quantizeNoteSequence(this.state.inputSequence, this.defaultQuantization);
-            var outputSequence = await coconet_model.infill(this.state.inputSequence, { numIterations: 10, temperature: parseFloat(0.99) });
+            var outputSequence = await coconet_model.infill(quantitizedInputSequence, { numIterations: 10, temperature: parseFloat(0.99) });
 
             // https://magenta.github.io/magenta-js/music/modules/_core_sequences_.html#mergeconsecutivenotes
             outputSequence = mm.sequences.mergeConsecutiveNotes(outputSequence);
@@ -52,12 +53,12 @@ export class CoconetSequence extends React.Component {
             outputSequence.ticksPerQuarter = quantitizedInputSequence.ticksPerQuarter;
             outputSequence.totalTime = quantitizedInputSequence.totalTime;
             // unquantitize sequence in order to compute the starttime for each note
-            outputSequence =  mm.sequences.unquantizeSequence(outputSequence, 60);
+            outputSequence = mm.sequences.unquantizeSequence(outputSequence, 60);
             this.setState({ outputSequence: outputSequence });
         } catch (error) {
             console.error(error);
         }
-        coconet_model.dispose();      
+        coconet_model.dispose();
     }
 
 
@@ -70,6 +71,10 @@ export class CoconetSequence extends React.Component {
 
         const magentaURL = URL.createObjectURL(magentaFile);
         console.log('Music.saveOutputAsMidi() url:' + magentaURL);
+    }
+
+    setInputSequence(sequence) {
+        this.setState({ inputSequence: sequence });
     }
 
     render() {
@@ -85,7 +90,7 @@ export class CoconetSequence extends React.Component {
                         onChange={e => this.handleInputFileChoosen(e.target.files[0])} />
                 </div>
                 <div>
-                    <RecorderComponent/>
+                    <RecorderComponent setSequence={this.setInputSequence}/>
                 </div>
                 <br />
                 <StaffVisualizer sequence={this.state.inputSequence} />
@@ -94,7 +99,7 @@ export class CoconetSequence extends React.Component {
                     <button
                         onClick={() => this.coconetInputSequence()}>
                         Continue sequence
-            </button>
+                    </button>
                 </div>
                 <br />
                 <StaffVisualizer sequence={this.state.outputSequence} />

@@ -45,9 +45,12 @@ export class RecorderComponent extends React.Component {
         const seq = this.recorder.stop();
 
         if (seq) {
-            seq.tempos.push({ qpm: 60 });
+            seq.tempos = [];
+            seq.tempos.push({ qpm: 60, time: 0 });
             console.log('RecorderComponent.stop() ' + seq);
             new mm.StaffSVGVisualizer(seq, this.myRef.current);
+
+            this.props.setSequence(seq);
         }
     };
 

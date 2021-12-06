@@ -40,6 +40,7 @@ export class RecorderComponent extends React.Component {
         };
         this.recorder.start();
     };
+    
 
     stop = () => {
         const seq = this.recorder.stop();

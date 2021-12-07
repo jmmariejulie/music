@@ -7,18 +7,24 @@ import * as mm from '@magenta/music'
 
 import { SOUND_PLAYER_SOUNDFONTS_URL, saveBlob } from './Common.js';
 
-export class StaffVisualizer extends React.Component {
+export class MultiStaffVisualizer2 extends React.Component {
     player = undefined;
 
     constructor(props) {
         super(props);
-        this.myRef = React.createRef();
+        this.myRef1 = React.createRef();
+        this.myRef2 = React.createRef();
+        this.myRef3 = React.createRef();
+        this.myRef4 = React.createRef();
 
         this.player = new mm.SoundFontPlayer(SOUND_PLAYER_SOUNDFONTS_URL);
     }
 
     displaySequence(sequence) {
-        new mm.StaffSVGVisualizer(sequence, this.myRef.current);
+        new mm.StaffSVGVisualizer(sequence[0], this.myRef1.current);
+        new mm.StaffSVGVisualizer(sequence[1], this.myRef2.current);
+        new mm.StaffSVGVisualizer(sequence[2], this.myRef3.current);
+        new mm.StaffSVGVisualizer(sequence[3], this.myRef4.current);
     }
 
     play(sequence) {
@@ -28,7 +34,7 @@ export class StaffVisualizer extends React.Component {
                 this.player.stop();
             }
             this.player.setTempo(200);
-            this.player.start(sequence);
+            this.player.start(sequence[0]);
             this.player.stop();
         }
     }
@@ -37,23 +43,6 @@ export class StaffVisualizer extends React.Component {
         if (this.player.isPlaying()) {
             this.player.stop();
         }
-    }
-
-    saveOutputAsMidi(sequence) {
-        if (sequence === undefined) {
-            return;
-        }
-
-        sequence.notes.forEach(n => n.velocity = 100);
-        const midi_bytes_array = mm.sequenceProtoToMidi(sequence);
-
-        // Convert byte array to file
-        const magentaFile = new Blob([midi_bytes_array], { type: 'audio/midi' });
-
-        const magentaURL = URL.createObjectURL(magentaFile);
-        console.log('Music.saveOutputAsMidi() url:' + magentaURL);
-
-        saveBlob(magentaFile, 'test.mid');
     }
 
     render() {
@@ -71,11 +60,11 @@ export class StaffVisualizer extends React.Component {
                     <Button
                         variant="primary" onClick={() => this.stop()}>
                         Stop</Button>
-                    <Button
-                        variant="primary" onClick={() => this.saveOutputAsMidi(this.props.sequence)}>
-                        Save</Button>
                 </ButtonGroup>
-                <div ref={this.myRef} width='400px' height='400px' />
+                <div ref={this.myRef1} width='400px' height='400px' />
+                <div ref={this.myRef2} width='400px' height='400px' />
+                <div ref={this.myRef3} width='400px' height='400px' />
+                <div ref={this.myRef4} width='400px' height='400px' />
             </div>
         );
     }

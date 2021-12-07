@@ -8,6 +8,7 @@ import { SOUND_PLAYER_SOUNDFONTS_URL, saveBlob } from './Common.js';
 
 
 export class RecorderComponent extends React.Component {
+    tempo = 60;
     recorder = undefined;
     player = undefined;
 
@@ -18,7 +19,7 @@ export class RecorderComponent extends React.Component {
 
         this.recorder = new mm.Recorder();
         this.recorder.initialize();
-        this.recorder.setTempo(60);
+        this.recorder.setTempo(this.tempo);
         this.recorder.enablePlayClick();
     }
 
@@ -29,7 +30,7 @@ export class RecorderComponent extends React.Component {
                 console.log('RecorderComponent.record() ' + seq);
                 if (seq) {
                     // tslint:disable-next-line:no-unused-expression
-                    seq.tempos.push({ qpm: 60 });
+                    seq.tempos.push({ qpm: this.tempo });
                     new mm.StaffSVGVisualizer(seq, this.myRef.current);
                 }
             },
@@ -46,7 +47,7 @@ export class RecorderComponent extends React.Component {
 
         if (seq) {
             seq.tempos = [];
-            seq.tempos.push({ qpm: 60, time: 0 });
+            seq.tempos.push({ qpm: this.tempo, time: 0 });
             console.log('RecorderComponent.stop() ' + seq);
             new mm.StaffSVGVisualizer(seq, this.myRef.current);
 

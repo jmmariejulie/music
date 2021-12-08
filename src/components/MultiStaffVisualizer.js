@@ -40,39 +40,27 @@ export class MultiStaffVisualizer extends React.Component {
             notesInBar: 'C#5/q, B4, A4, G#4',
             clef: 'treble',
             stem: 'up'
-        }]
+        },
+        {
+            notesInBar: 'C#3/q, B2, A2/8, B2, C#3, D3',
+            clef: 'bass',
+            stem: 'up'
+        }
+        ]
         system = this.addBar(vf, score, system, voices, true, 400);
 
-        //system.addConnector();
-
-        system.addStave({
-            voices: [
-                score.voice(score.notes('C#3/q, B2, A2/8, B2, C#3, D3', {
-                    clef: 'bass',
-                    stem: 'up'
-                }))
-            ]
-        }).addClef('bass').addTimeSignature('4/4');
-
-        system = this.makeSystem(vf, 400);
-        system.addStave({
-            voices: [
-                score.voice(score.notes('C#5/q, B4, A4, G#4', {
-                    stem: 'up'
-                }))
-            ]
-        });
-
-        //system.addConnector();
-
-        system.addStave({
-            voices: [
-                score.voice(score.notes('C#3/q, B2, A2/8, B2, C#3, D3', {
-                    clef: 'bass',
-                    stem: 'up'
-                }))
-            ]
-        });
+        const voices2 = [{
+            notesInBar: 'C#5/q, B4, A4, G#4',
+            clef: 'treble',
+            stem: 'up'
+        },
+        {
+            notesInBar: 'C#3/q, B2, A2/8, B2, C#3, D3',
+            clef: 'bass',
+            stem: 'up'
+        }
+        ]
+        system = this.addBar(vf, score, system, voices2, false, 400);
 
         vf.draw();
     }
@@ -85,8 +73,7 @@ export class MultiStaffVisualizer extends React.Component {
         return system;
     }
 
-
-    // voices = [{notesInBar, clef, stem}] 
+    // [{notesInBar, clef, stem}] 
     addBar(vf, score, system, voices, isFirstBar, width) {
         system = this.makeSystem(vf, width);
 
@@ -99,21 +86,17 @@ export class MultiStaffVisualizer extends React.Component {
             vexFlowVoices.push(vexFlowVoice);
         }
 
-        if (isFirstBar) {
-            system.addStave({
-                voices: vexFlowVoices
-                /*voices: [
-                    score.voice(score.notes('C#5/q, B4, A4, G#4', {
-                        clef: 'treble',
-                        stem: 'up'
-                    }))
-                ]*/
-            }).addClef('treble').addTimeSignature('4/4');
-        } else {
-            system.addStave({
-                voices: vexFlowVoices
+        for (let i = 0; i < voices.length; i++) {
+            const vexFlowVoice = vexFlowVoices[i];
+            const voice = voices[i];
+            const stave = system.addStave({
+                voices: [vexFlowVoice]
             });
+            if (isFirstBar) {
+                stave.addClef(voice.clef).addTimeSignature('4/4');
+            }
         }
+
         return system;
     }
 

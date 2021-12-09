@@ -40,28 +40,6 @@ export class MultiStaffVisualizer extends React.Component {
 
         this.displayNoteSequence(vf, score, sequence);
 
-        /*
-        const voices = [{
-            notesInBar: 'C#5/q, B4, A4, G#4',
-            clef: 'treble',
-            stem: 'up'
-        }
-        ]
-        system = this.addBar(vf, score, system, voices, true, 400);
-
-        const voices2 = [{
-            notesInBar: 'C#5/q, B4, A4, G#4',
-            clef: 'treble',
-            stem: 'up'
-        },
-        {
-            notesInBar: 'C#3/q, B2, A2/8, B2, C#3, D3',
-            clef: 'bass',
-            stem: 'up'
-        }
-        ]
-        system = this.addBar(vf, score, system, voices2, false, 400);
-        */
         vf.draw();
     }
 

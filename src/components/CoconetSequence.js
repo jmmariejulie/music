@@ -5,7 +5,7 @@ import { StaffVisualizer } from './StaffVisualizer.js';
 import { MultiStaffVisualizer } from './MultiStaffVisualizer.js';
 import { RecorderComponent } from './RecorderComponent';
 
-import { splitVoices } from './Helper.js';
+import { splitVoices } from './Helper.ts';
 
 // See https://coconet.glitch.me/#67:3:0,67:4:0,67:19:0,67:20:0,65:2:0,65:5:0,65:18:0,65:21:0,64:0:0,64:1:0,64:6:0,64:11:0,64:12:0,64:16:0,64:17:0,64:22:0,64:27:0,62:7:0,62:10:0,62:14:0,62:23:0,62:26:0,62:28:0,61:30:0,60:8:0,60:9:0,60:24:0,60:25:0
 

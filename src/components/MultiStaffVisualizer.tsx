@@ -11,18 +11,24 @@ import Vex from 'vexflow'
 import { getDuration, toNoteName } from './Helper';
 
 import { SOUND_PLAYER_SOUNDFONTS_URL, saveBlob } from './Common.js';
+import { NoteSequence } from '@magenta/music';
 
-export class MultiStaffVisualizer extends React.Component {
-    player = undefined;
+type MultiStaffVisualizerProps = {
+    sequence: NoteSequence;
+}
 
-    constructor(props) {
+export class MultiStaffVisualizer extends React.Component<MultiStaffVisualizerProps> {
+    player: mm.SoundFontPlayer;
+    myRef = React.createRef<HTMLDivElement>();
+
+    constructor(props: any) {
         super(props);
-        this.myRef = React.createRef();
+        this.myRef = React.createRef<HTMLDivElement>();
 
         this.player = new mm.SoundFontPlayer(SOUND_PLAYER_SOUNDFONTS_URL);
     }
 
-    displaySequence(sequence) {
+    displaySequence(sequence: NoteSequence) {
         // elementId has to be used.
         var vf = new Vex.Flow.Factory({
             renderer: {
@@ -33,8 +39,6 @@ export class MultiStaffVisualizer extends React.Component {
         });
 
         var score = vf.EasyScore();
-        var system = undefined;
-
         const timeSignature = '4/4';
         score.set({ time: timeSignature });
 
@@ -45,22 +49,20 @@ export class MultiStaffVisualizer extends React.Component {
 
     x = 0;
     y = 80;
-    makeSystem(vf, width) {
+    makeSystem(vf: Vex.Flow.Factory, width: number) {
         var system = vf.System({ x: this.x, y: this.y, width: width, spaceBetweenStaves: 10 });
         this.x += width;
         return system;
     }
 
     // [{notesInBar, clef, stem}] 
-    addBar(vf, score, system, voices, isFirstBar, width) {
-        system = this.makeSystem(vf, width);
-
+    addBar(vf: Vex.Flow.Factory, score: Vex.Flow.EasyScore, system: Vex.Flow.System, voices: any, isFirstBar: boolean, width: number): Vex.Flow.System {
         let vexFlowVoices = [];
         for (const voice of voices) {
             let vexFlowVoice = score.voice(score.notes(voice.notesInBar, {
                 clef: voice.clef,
                 stem: voice.stem
-            }));
+            }), null);
             vexFlowVoices.push(vexFlowVoice);
         }
 
@@ -76,38 +78,42 @@ export class MultiStaffVisualizer extends React.Component {
         return system;
     }
 
-    displayNoteSequence(vf, score, sequence) {
-        var system = undefined;
+    displayNoteSequence(vf: Vex.Flow.Factory, score: Vex.Flow.EasyScore, sequence: NoteSequence) {
+        var system: Vex.Flow.System;
+        const width = 400;
+
 
         let barDuration = 0;
         let notesInBar = [];
 
         for (let i = 0; i < sequence.notes.length; i++) {
-            const note = sequence.notes[i];
-            const duration = note.quantizedEndStep - note.quantizedStartStep;
-            barDuration += duration;
-            notesInBar.push(note);
-            if (barDuration == 16) {
-                // create a new bar
-                const vexFlowNotesInBar = this.convertNotesToVexFlowNotes(notesInBar)
-                const voice = [{
-                    notesInBar: vexFlowNotesInBar,
-                    clef: 'treble',
-                    stem: 'up'
-                }];
+            const note: any = sequence.notes[i];
+            if (note) {
+                const duration = note.quantizedEndStep! - note.quantizedStartStep!;
+                barDuration += duration;
+                notesInBar.push(note);
+                if (barDuration == 16) {
+                    // create a new bar
+                    const vexFlowNotesInBar = this.convertNotesToVexFlowNotes(notesInBar)
+                    const voice = [{
+                        notesInBar: vexFlowNotesInBar,
+                        clef: 'treble',
+                        stem: 'up'
+                    }];
 
-                console.log("displayNoteSequence() notes: " + vexFlowNotesInBar);
+                    console.log("displayNoteSequence() notes: " + vexFlowNotesInBar);
 
-                const width = 400;
-                system = this.addBar(vf, score, system, voice, false, width);
+                    system = this.makeSystem(vf, width);
+                    system = this.addBar(vf, score, system, voice, false, width);
 
-                barDuration = 0;
-                notesInBar = [];
+                    barDuration = 0;
+                    notesInBar = [];
+                }
             }
         }
     }
 
-    convertNotesToVexFlowNotes(notes) {
+    convertNotesToVexFlowNotes(notes: NoteSequence.Note[]) {
         let vexFlowNotes = [];
         for (const note of notes) {
             vexFlowNotes.push(this.convertNoteToVexFlowNote(note));
@@ -115,18 +121,18 @@ export class MultiStaffVisualizer extends React.Component {
         return vexFlowNotes.join();
     }
 
-    convertNoteToVexFlowNote(note) {
+    convertNoteToVexFlowNote(note: NoteSequence.Note) {
         return toNoteName(note) + '/' + getDuration(note, 4);
     }
 
-    play(sequence) {
+    play(sequence: NoteSequence) {
         if (sequence !== undefined) {
             console.log("Play...");
             if (this.player.isPlaying()) {
                 this.player.stop();
             }
             this.player.setTempo(200);
-            this.player.start(sequence[0]);
+            this.player.start(sequence);
             this.player.stop();
         }
     }
@@ -144,17 +150,17 @@ export class MultiStaffVisualizer extends React.Component {
         }
         return (
             <div>
-                <ButtonGroup className="mb-2">
+                <ButtonGroup className="mb-2" >
                     <Button
                         variant="primary"
-                        onClick={() => this.play(this.props.sequence)}>
-                        Play</Button>
-                    <Button
+                        onClick={() => this.play(this.props.sequence)
+                        }>
+                        Play </Button>
+                    < Button
                         variant="primary" onClick={() => this.stop()}>
-                        Stop</Button>
+                        Stop </Button>
                 </ButtonGroup>
-                <div ref={this.myRef} width='400px' height='400px' />
-
+                < div ref={this.myRef} />
             </div>
         );
     }

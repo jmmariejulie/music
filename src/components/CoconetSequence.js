@@ -2,7 +2,7 @@ import React from 'react';
 
 import * as mm from '@magenta/music'
 import { StaffVisualizer } from './StaffVisualizer.js';
-import { MultiStaffVisualizer } from './MultiStaffVisualizer.js';
+import { MultiStaffVisualizer } from './MultiStaffVisualizer.tsx';
 import { RecorderComponent } from './RecorderComponent';
 
 import { splitVoices } from './Helper.ts';
@@ -40,9 +40,6 @@ export class CoconetSequence extends React.Component {
                 // Just to test the VexFlow
                 this.setState({ multiVoiceOutputSequence: quantitizedSequence });
             });
-        console.log('handleInputFileChoosen() inputNotes: ' + promise);
-
-
     }
 
     async coconetInputSequence() {

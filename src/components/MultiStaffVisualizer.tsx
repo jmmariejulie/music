@@ -17,6 +17,12 @@ type MultiStaffVisualizerProps = {
     sequence: NoteSequence;
 }
 
+type Voice = {
+    notesInBar: string;
+    clef: string;
+    stem: string;
+}
+
 export class MultiStaffVisualizer extends React.Component<MultiStaffVisualizerProps> {
     player: mm.SoundFontPlayer;
     myRef = React.createRef<HTMLDivElement>();
@@ -55,8 +61,7 @@ export class MultiStaffVisualizer extends React.Component<MultiStaffVisualizerPr
         return system;
     }
 
-    // [{notesInBar, clef, stem}] 
-    addBar(vf: Vex.Flow.Factory, score: Vex.Flow.EasyScore, system: Vex.Flow.System, voices: any, isFirstBar: boolean, width: number): Vex.Flow.System {
+    addBar(vf: Vex.Flow.Factory, score: Vex.Flow.EasyScore, system: Vex.Flow.System, voices: Voice[], isFirstBar: boolean, width: number): Vex.Flow.System {
         let vexFlowVoices = [];
         for (const voice of voices) {
             let vexFlowVoice = score.voice(score.notes(voice.notesInBar, {
@@ -82,7 +87,7 @@ export class MultiStaffVisualizer extends React.Component<MultiStaffVisualizerPr
         var system: Vex.Flow.System;
         const width = 400;
 
-
+        let firstBar = true;
         let barDuration = 0;
         let notesInBar = [];
 
@@ -104,7 +109,8 @@ export class MultiStaffVisualizer extends React.Component<MultiStaffVisualizerPr
                     console.log("displayNoteSequence() notes: " + vexFlowNotesInBar);
 
                     system = this.makeSystem(vf, width);
-                    system = this.addBar(vf, score, system, voice, false, width);
+                    system = this.addBar(vf, score, system, voice, firstBar, width);
+                    firstBar = false;
 
                     barDuration = 0;
                     notesInBar = [];

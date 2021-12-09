@@ -8,6 +8,8 @@ import * as mm from '@magenta/music'
 // https://ourcodeworld.com/articles/read/293/rendering-music-notation-music-sheet-in-javascript-with-vexflow-2
 import Vex from 'vexflow'
 
+import { getDuration, toNoteName } from './Helper';
+
 import { SOUND_PLAYER_SOUNDFONTS_URL, saveBlob } from './Common.js';
 
 export class MultiStaffVisualizer extends React.Component {
@@ -36,14 +38,12 @@ export class MultiStaffVisualizer extends React.Component {
         const timeSignature = '4/4';
         score.set({ time: timeSignature });
 
+        this.displayNoteSequence(vf, score, sequence);
+
+        /*
         const voices = [{
             notesInBar: 'C#5/q, B4, A4, G#4',
             clef: 'treble',
-            stem: 'up'
-        },
-        {
-            notesInBar: 'C#3/q, B2, A2/8, B2, C#3, D3',
-            clef: 'bass',
             stem: 'up'
         }
         ]
@@ -61,7 +61,7 @@ export class MultiStaffVisualizer extends React.Component {
         }
         ]
         system = this.addBar(vf, score, system, voices2, false, 400);
-
+        */
         vf.draw();
     }
 
@@ -86,18 +86,59 @@ export class MultiStaffVisualizer extends React.Component {
             vexFlowVoices.push(vexFlowVoice);
         }
 
-        for (let i = 0; i < voices.length; i++) {
-            const vexFlowVoice = vexFlowVoices[i];
-            const voice = voices[i];
-            const stave = system.addStave({
-                voices: [vexFlowVoice]
+        if (isFirstBar) {
+            system.addStave({
+                voices: vexFlowVoices
+            }).addClef('treble').addTimeSignature('4/4');
+        } else {
+            system.addStave({
+                voices: vexFlowVoices
             });
-            if (isFirstBar) {
-                stave.addClef(voice.clef).addTimeSignature('4/4');
+        }
+        return system;
+    }
+
+    displayNoteSequence(vf, score, sequence) {
+        var system = undefined;
+
+        let barDuration = 0;
+        let notesInBar = [];
+
+        for (let i = 0; i < sequence.notes.length; i++) {
+            const note = sequence.notes[i];
+            const duration = note.quantizedEndStep - note.quantizedStartStep;
+            barDuration += duration;
+            notesInBar.push(note);
+            if (barDuration == 16) {
+                // create a new bar
+                const vexFlowNotesInBar = this.convertNotesToVexFlowNotes(notesInBar)
+                const voice = [{
+                    notesInBar: vexFlowNotesInBar,
+                    clef: 'treble',
+                    stem: 'up'
+                }];
+
+                console.log("displayNoteSequence() notes: " + vexFlowNotesInBar);
+
+                const width = 400;
+                system = this.addBar(vf, score, system, voice, false, width);
+
+                barDuration = 0;
+                notesInBar = [];
             }
         }
+    }
 
-        return system;
+    convertNotesToVexFlowNotes(notes) {
+        let vexFlowNotes = [];
+        for (const note of notes) {
+            vexFlowNotes.push(this.convertNoteToVexFlowNote(note));
+        }
+        return vexFlowNotes.join();
+    }
+
+    convertNoteToVexFlowNote(note) {
+        return toNoteName(note) + '/' + getDuration(note, 4);
     }
 
     play(sequence) {

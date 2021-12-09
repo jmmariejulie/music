@@ -1,6 +1,7 @@
 import * as mm from '@magenta/music'
-import { note } from 'midi-note' // https://www.npmjs.com/package/midi-note
+import note from 'midi-note' // https://www.npmjs.com/package/midi-note
 
+// Split a noteSequence into several sequences, each per instrument
 export function splitVoices(noteSequence) {
     const instruments = getInstruments(noteSequence);
     const voiceNumber = instruments.length;
@@ -17,8 +18,8 @@ export function splitVoices(noteSequence) {
     return noteSequences;
 }
 
-export function toNoteName(pitch) {
-    return note(pitch);
+export function toNoteName(magentaNote) {
+    return note(magentaNote.pitch);
 }
 
 export function getDuration(note, quantizationStep) {

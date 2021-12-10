@@ -15,6 +15,7 @@ export class StaffVisualizer extends React.Component {
         this.myRef = React.createRef();
 
         this.player = new mm.SoundFontPlayer(SOUND_PLAYER_SOUNDFONTS_URL);
+        this.state = { hasError: false };
     }
 
     displaySequence(sequence) {
@@ -56,7 +57,20 @@ export class StaffVisualizer extends React.Component {
         saveBlob(magentaFile, 'test.mid');
     }
 
+    static getDerivedStateFromError(error) {
+        // Update state so the next render will show the fallback UI.
+        return { hasError: true };
+    }
+
+    componentDidCatch(error, errorInfo) {
+        console.log("StaffVisualizer error: " + error + " errorInfo:" + errorInfo);
+    }
+
     render() {
+        if (this.state.hasError) {
+            // You can render any custom fallback UI
+            return <h1>Something went wrong.</h1>;
+        }
         console.log('StaffVisualizer.render() sequence:' + this.props.sequence);
         if (this.props.sequence !== undefined) {
             this.displaySequence(this.props.sequence);

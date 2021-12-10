@@ -2,7 +2,8 @@ import React from 'react';
 
 import * as mm from '@magenta/music'
 import { StaffVisualizer } from './StaffVisualizer.js';
-import { MultiStaffVisualizer } from './MultiStaffVisualizer.tsx';
+import { VexFlowVisualizer } from './VexFlowVisualizer.tsx';
+import { MultiVexFlowVisualizer } from './MultiVexFlowVisualizer.tsx';
 import { RecorderComponent } from './RecorderComponent';
 
 import { splitVoices } from './Helper.ts';
@@ -16,7 +17,7 @@ export class CoconetSequence extends React.Component {
     player = undefined;
     recorder = new mm.Recorder();
 
-    defaultQuantization = 4;
+    defaultQuantization = 2;
 
     constructor(props) {
         super(props);
@@ -36,9 +37,6 @@ export class CoconetSequence extends React.Component {
             .then((sample) => {
                 const quantitizedSequence = mm.sequences.quantizeNoteSequence(sample, this.defaultQuantization);
                 this.setState({ inputSequence: quantitizedSequence });
-
-                // Just to test the VexFlow
-                this.setState({ multiVoiceOutputSequence: quantitizedSequence });
             });
     }
 
@@ -48,7 +46,7 @@ export class CoconetSequence extends React.Component {
 
         try {
             const quantitizedInputSequence = mm.sequences.quantizeNoteSequence(this.state.inputSequence, this.defaultQuantization);
-            var outputSequence = await coconet_model.infill(quantitizedInputSequence, { numIterations: 10, temperature: parseFloat(0.99) });
+            var outputSequence = await coconet_model.infill(this.state.inputSequence, { numIterations: 1, temperature: parseFloat(0.99) });
 
             // https://magenta.github.io/magenta-js/music/modules/_core_sequences_.html#mergeconsecutivenotes
             outputSequence = mm.sequences.mergeConsecutiveNotes(outputSequence);
@@ -65,7 +63,7 @@ export class CoconetSequence extends React.Component {
             var voices = splitVoices(outputSequence);
             console.table(voices);
 
-            this.setState({ outputSequence: outputSequence });
+            this.setState({ outputSequence: voices[1] });
             this.setState({ multiVoiceOutputSequence: voices });
         } catch (error) {
             console.error(error);
@@ -110,12 +108,13 @@ export class CoconetSequence extends React.Component {
                 <div>
                     <button
                         onClick={() => this.coconetInputSequence()}>
-                        Continue sequence
+                        Create the voices
                     </button>
                 </div>
                 <br />
                 <StaffVisualizer sequence={this.state.outputSequence} />
-                <MultiStaffVisualizer sequence={this.state.multiVoiceOutputSequence} />
+                <VexFlowVisualizer sequence={this.state.outputSequence} quantizationStep={this.defaultQuantization}/>
+                <MultiVexFlowVisualizer sequences={this.state.multiVoiceOutputSequence} quantizationStep={this.defaultQuantization}/>
             </div>);
     }
 }

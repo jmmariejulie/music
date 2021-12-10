@@ -1,20 +1,18 @@
 import React from 'react';
 
-import ButtonGroup from 'react-bootstrap/ButtonGroup'
-import Button from 'react-bootstrap/Button'
-
-import * as mm from '@magenta/music'
-
 // https://ourcodeworld.com/articles/read/293/rendering-music-notation-music-sheet-in-javascript-with-vexflow-2
 import Vex from 'vexflow'
 
 import { getDuration, toNoteName } from './Helper';
-
-import { SOUND_PLAYER_SOUNDFONTS_URL, saveBlob } from './Common.js';
 import { NoteSequence } from '@magenta/music';
 
-type MultiStaffVisualizerProps = {
+interface IProps {
     sequence: NoteSequence;
+    quantizationStep: number;
+}
+
+interface IState {
+    hasError?: boolean;
 }
 
 type Voice = {
@@ -23,24 +21,24 @@ type Voice = {
     stem: string;
 }
 
-export class MultiStaffVisualizer extends React.Component<MultiStaffVisualizerProps> {
-    player: mm.SoundFontPlayer;
-    myRef = React.createRef<HTMLDivElement>();
+export class VexFlowVisualizer extends React.Component<IProps, IState> {
+    private myRef = React.createRef<HTMLDivElement>();
 
     constructor(props: any) {
         super(props);
-        this.myRef = React.createRef<HTMLDivElement>();
-
-        this.player = new mm.SoundFontPlayer(SOUND_PLAYER_SOUNDFONTS_URL);
+        this.state = { hasError: false };
     }
 
     displaySequence(sequence: NoteSequence) {
+        if(!this.myRef.current) {
+            console.log("displaySequence() no myRef: " + this.myRef.current);
+        }
         // elementId has to be used.
         var vf = new Vex.Flow.Factory({
             renderer: {
                 elementId: this.myRef.current,
-                height: 800,
-                width: 800
+                height: 200,
+                width: 1600
             }
         });
 
@@ -54,7 +52,7 @@ export class MultiStaffVisualizer extends React.Component<MultiStaffVisualizerPr
     }
 
     x = 0;
-    y = 80;
+    y = 20;
     makeSystem(vf: Vex.Flow.Factory, width: number) {
         var system = vf.System({ x: this.x, y: this.y, width: width, spaceBetweenStaves: 10 });
         this.x += width;
@@ -85,11 +83,12 @@ export class MultiStaffVisualizer extends React.Component<MultiStaffVisualizerPr
 
     displayNoteSequence(vf: Vex.Flow.Factory, score: Vex.Flow.EasyScore, sequence: NoteSequence) {
         var system: Vex.Flow.System;
-        const width = 400;
+        const width = 300;
 
         let firstBar = true;
         let barDuration = 0;
         let notesInBar = [];
+        const stepsPerBar = 4 * this.props.quantizationStep;
 
         for (let i = 0; i < sequence.notes.length; i++) {
             const note: any = sequence.notes[i];
@@ -97,7 +96,7 @@ export class MultiStaffVisualizer extends React.Component<MultiStaffVisualizerPr
                 const duration = note.quantizedEndStep! - note.quantizedStartStep!;
                 barDuration += duration;
                 notesInBar.push(note);
-                if (barDuration == 16) {
+                if (barDuration === stepsPerBar) {
                     // create a new bar
                     const vexFlowNotesInBar = this.convertNotesToVexFlowNotes(notesInBar)
                     const voice = [{
@@ -128,44 +127,34 @@ export class MultiStaffVisualizer extends React.Component<MultiStaffVisualizerPr
     }
 
     convertNoteToVexFlowNote(note: NoteSequence.Note) {
-        return toNoteName(note) + '/' + getDuration(note, 4);
+        return toNoteName(note) + '/' + getDuration(note, this.props.quantizationStep);
     }
 
-    play(sequence: NoteSequence) {
-        if (sequence !== undefined) {
-            console.log("Play...");
-            if (this.player.isPlaying()) {
-                this.player.stop();
-            }
-            this.player.setTempo(200);
-            this.player.start(sequence);
-            this.player.stop();
-        }
+    static getDerivedStateFromError(error: any) {
+        // Update state so the next render will show the fallback UI.
+        return { hasError: true };
     }
 
-    stop() {
-        if (this.player.isPlaying()) {
-            this.player.stop();
+    componentDidCatch(error: any, errorInfo: any) {
+        console.log("VexFlowVisualizer error: " + error + " errorInfo:" + errorInfo);
+    }
+
+    componentDidMount() {
+        console.log('StaffVisualizer.render() sequence:' + this.props.sequence);
+        if (this.props.sequence) {
+            this.displaySequence(this.props.sequence);
         }
     }
 
     render() {
-        console.log('StaffVisualizer.render() sequence:' + this.props.sequence);
-        if (this.props.sequence !== undefined) {
-            this.displaySequence(this.props.sequence);
+        if (this.state.hasError) {
+            // You can render any custom fallback UI
+            return <h1>Something went wrong.</h1>;
         }
+
+        
         return (
             <div>
-                <ButtonGroup className="mb-2" >
-                    <Button
-                        variant="primary"
-                        onClick={() => this.play(this.props.sequence)
-                        }>
-                        Play </Button>
-                    < Button
-                        variant="primary" onClick={() => this.stop()}>
-                        Stop </Button>
-                </ButtonGroup>
                 < div ref={this.myRef} />
             </div>
         );

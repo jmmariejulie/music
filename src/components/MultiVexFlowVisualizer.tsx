@@ -23,10 +23,11 @@ export class MultiVexFlowVisualizer extends React.Component<IProps, IState> {
     }
 
     componentDidCatch(error: any, errorInfo: any) {
-        console.log("VexFlowVisualizer error: " + error + " errorInfo:" + errorInfo);
+        console.log("MultiVexFlowVisualizer error: " + error + " errorInfo:" + errorInfo);
     }
 
     render() {
+        console.log("MultiVexFlowVisualizer render()");
         if (this.state.hasError) {
             // You can render any custom fallback UI
             return <h1>Something went wrong.</h1>;
@@ -36,8 +37,8 @@ export class MultiVexFlowVisualizer extends React.Component<IProps, IState> {
             var sequences = this.props.sequences;
             return (
             <div>
-                {sequences.map((sequence) => (
-                    <VexFlowVisualizer sequence={sequence} quantizationStep={this.props.quantizationStep}/>
+                {sequences.map((sequence, index) => (
+                    <VexFlowVisualizer key={index} sequence={sequence} quantizationStep={this.props.quantizationStep} clef={index==3?'bass':'treble'}/>
                 ))}
             </div>
             )

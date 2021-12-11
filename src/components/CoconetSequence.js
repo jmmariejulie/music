@@ -90,6 +90,7 @@ export class CoconetSequence extends React.Component {
     render() {
         console.log('Music.render() sequence:' + this.state.inputSequence);
         const inputSequenceDefined = this.state.inputSequence !== undefined;
+        const sequence = this.state.multiVoiceOutputSequence? this.state.multiVoiceOutputSequence[0]: undefined;
         return (
             <div>
                 <p>Coconet</p>
@@ -113,9 +114,11 @@ export class CoconetSequence extends React.Component {
                 </div>
                 <br />
                 <StaffVisualizer sequence={this.state.outputSequence} />
-                <VexFlowVisualizer sequence={this.state.outputSequence} quantizationStep={this.defaultQuantization}/>
                 <MultiVexFlowVisualizer sequences={this.state.multiVoiceOutputSequence} quantizationStep={this.defaultQuantization}/>
+                
             </div>);
     }
+//                <VexFlowVisualizer sequence={sequence} quantizationStep={this.defaultQuantization} clef='treble'/>
+
 }
 

@@ -4,7 +4,7 @@ import React, { useRef, useEffect } from 'react';
 // https://git.bz-inc.com/mirror/vexflow/-/wikis/Home
 import Vex from 'vexflow'
 
-import { getDuration, toNoteName } from './Helper';
+import { midiNoteToTextNotation } from './Helper';
 import { NoteSequence } from '@magenta/music';
 
 interface IProps {
@@ -81,8 +81,29 @@ export const VexFlowVisualizer = (props: IProps) => {
         return system;
     }
 
+
     const displayNoteSequence = (vf: Vex.Flow.Factory, score: Vex.Flow.EasyScore, sequence: NoteSequence) => {
         var system: Vex.Flow.System;
+
+        const bars = noteSequenceToBars(vf, score, sequence);
+
+        var firstBar = true;
+        for (let i = 0; i < bars.length; i++) {
+            const bar = bars[i];
+            const voice = [{
+                notesInBar: bar,
+                clef: props.clef,
+                stem: 'up'
+            }];
+            system = makeSystem(vf, barWidth);
+            addBar(vf, score, system, voice, firstBar, barWidth);
+            
+            firstBar = false;
+        }
+    }
+
+    const noteSequenceToBars = (vf: Vex.Flow.Factory, score: Vex.Flow.EasyScore, sequence: NoteSequence): string[] => {
+        var bars: string[] = [];
 
         let firstBar = true;
         let barDuration = 0;
@@ -119,16 +140,16 @@ export const VexFlowVisualizer = (props: IProps) => {
 
                         // insert a new note (this will be in the next bar)
                         const noteToBeInsertedDuration = barDuration - stepsPerBar;
-                        const noteToBeInserted = {...note};
+                        const noteToBeInserted = { ...note };
                         noteToBeInserted.quantizedStartStep = lastNote.quantizedEndStep + 1;
                         noteToBeInserted.quantizedEndStep = noteToBeInserted.quantizedStartStep + noteToBeInsertedDuration;
-                        insertNote(sequence, noteToBeInserted, i+1);
+                        insertNote(sequence, noteToBeInserted, i + 1);
                     }
 
                     console.log("displayNoteSequence() notes: " + vexFlowNotesInBar);
 
-                    system = makeSystem(vf, barWidth);
-                    system = addBar(vf, score, system, voice, firstBar, barWidth);
+                    bars.push(vexFlowNotesInBar);
+                    //addBar(vf, score, system, voice, firstBar, barWidth);
                     firstBar = false;
 
                     barDuration = 0;
@@ -136,6 +157,7 @@ export const VexFlowVisualizer = (props: IProps) => {
                 }
             }
         }
+        return bars;
     }
 
     const insertNote = (sequence: NoteSequence, note: NoteSequence.Note, position: number) => {
@@ -145,13 +167,9 @@ export const VexFlowVisualizer = (props: IProps) => {
     const convertNotesToVexFlowNotes = (notes: NoteSequence.Note[]) => {
         let vexFlowNotes = [];
         for (const note of notes) {
-            vexFlowNotes.push(convertNoteToVexFlowNote(note));
+            vexFlowNotes.push(midiNoteToTextNotation(note, props.quantizationStep));
         }
         return vexFlowNotes.join();
-    }
-
-    const convertNoteToVexFlowNote = (note: NoteSequence.Note) => {
-        return toNoteName(note) + '/' + getDuration(note, props.quantizationStep);
     }
 
     useEffect(() => {

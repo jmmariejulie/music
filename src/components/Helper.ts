@@ -3,7 +3,7 @@ import { NoteSequence } from '@magenta/music'
 import { Note } from "@tonaljs/tonal"; // https://github.com/tonaljs/tonal
 
 // Split a noteSequence into several sequences, each per instrument
-export function splitVoices(noteSequence: NoteSequence): NoteSequence[] {
+export const splitVoices = (noteSequence: NoteSequence): NoteSequence[] => {
     const instruments = getInstruments(noteSequence);
     const voiceNumber = instruments.length;
 
@@ -19,11 +19,15 @@ export function splitVoices(noteSequence: NoteSequence): NoteSequence[] {
     return noteSequences;
 }
 
-export function toNoteName(magentaNote: NoteSequence.Note): string {
+export const midiNoteToTextNotation = (note: NoteSequence.Note, quantizationStep: number): string => {
+    return toNoteName(note) + '/' + getDuration(note, quantizationStep);
+}   
+
+export const toNoteName = (magentaNote: NoteSequence.Note): string => {
     return Note.fromMidi(magentaNote.pitch);
 }
 
-export function getDuration(note: NoteSequence.Note, quantizationStep: number): string {
+export const getDuration = (note: NoteSequence.Note, quantizationStep: number): string => {
     const durationQuantized = note.quantizedEndStep - note.quantizedStartStep;
     //const durationQuantizedStep = durationQuantized / (quantizationStep / 4);
     let durationQuantizedStep = durationQuantized;
@@ -35,21 +39,24 @@ export function getDuration(note: NoteSequence.Note, quantizationStep: number): 
 
     switch (durationQuantizedStep) {
         case 16: return 'w'; // ronde
-        case 13: return 'h...';
+        case 15: return 'h., ' + toNoteName(note) + '/8.'; // blanche pointee + une croche pointee
+        case 14: return 'h., ' + toNoteName(note) + '/8'; // blanche pointee + une croche
+        case 13: return 'h., ' + toNoteName(note) + '/16'; // blanche pointee + une double croche
         case 12: return 'h.'; // blanche pointee
-        case 10: return 'h..';
-        case 9: return 'h...';
+        case 11: return 'h, ' + toNoteName(note) + '/8.'; // blanche + une croche pointee
+        case 10: return 'h, ' + toNoteName(note) + '/8'; // blanche + une croche
+        case 9: return 'h, ' + toNoteName(note) + '/16'; // blanche + une double croche
         case 8: return 'h'; // blanche
         case 7: return 'q.'; // noire pointee
         case 6: return 'q.'; // noire pointee
-        case 5: return 'q..'; // noire
+        case 5: return 'q, ' + toNoteName(note) + '/16'; // noire + une double croche
         case 4: return 'q'; // noire
         case 3: return '8.'; // croche pointee
         case 2: return '8'; // croche
         case 1: return '16'; // double croche
     }
 
-    return "unrecognized durationQuantized: " + durationQuantized;
+    return "unrecognized durationQuantized: " + durationQuantized + " durationQuantizedStep: " + durationQuantizedStep;
 }
 
 const getInstruments = (noteSequence: NoteSequence): number[] => {

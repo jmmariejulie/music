@@ -105,7 +105,6 @@ export const VexFlowVisualizer = (props: IProps) => {
     const noteSequenceToBars = (vf: Vex.Flow.Factory, score: Vex.Flow.EasyScore, sequence: NoteSequence): string[] => {
         var bars: string[] = [];
 
-        let firstBar = true;
         let barDuration = 0;
         let notesInBar = [];
         const stepsPerBar = 4 * props.quantizationStep;
@@ -149,8 +148,6 @@ export const VexFlowVisualizer = (props: IProps) => {
                     console.log("displayNoteSequence() notes: " + vexFlowNotesInBar);
 
                     bars.push(vexFlowNotesInBar);
-                    //addBar(vf, score, system, voice, firstBar, barWidth);
-                    firstBar = false;
 
                     barDuration = 0;
                     notesInBar = [];

@@ -20,14 +20,14 @@ export const splitVoices = (noteSequence: NoteSequence): NoteSequence[] => {
 }
 
 export const midiNoteToTextNotation = (note: NoteSequence.Note, quantizationStep: number): string => {
-    return toNoteName(note) + '/' + getDuration(note, quantizationStep);
+    return getDuration(note, quantizationStep);
 }   
 
-export const toNoteName = (magentaNote: NoteSequence.Note): string => {
-    return Note.fromMidi(magentaNote.pitch);
+const toNoteName = (magentaNote: NoteSequence.Note): string => {
+    return Note.fromMidiSharps(magentaNote.pitch);
 }
 
-export const getDuration = (note: NoteSequence.Note, quantizationStep: number): string => {
+const getDuration = (note: NoteSequence.Note, quantizationStep: number): string => {
     const durationQuantized = note.quantizedEndStep - note.quantizedStartStep;
     //const durationQuantizedStep = durationQuantized / (quantizationStep / 4);
     let durationQuantizedStep = durationQuantized;
@@ -38,22 +38,22 @@ export const getDuration = (note: NoteSequence.Note, quantizationStep: number): 
     }  
 
     switch (durationQuantizedStep) {
-        case 16: return 'w'; // ronde
-        case 15: return 'h., ' + toNoteName(note) + '/8.'; // blanche pointee + une croche pointee
-        case 14: return 'h., ' + toNoteName(note) + '/8'; // blanche pointee + une croche
-        case 13: return 'h., ' + toNoteName(note) + '/16'; // blanche pointee + une double croche
-        case 12: return 'h.'; // blanche pointee
-        case 11: return 'h, ' + toNoteName(note) + '/8.'; // blanche + une croche pointee
-        case 10: return 'h, ' + toNoteName(note) + '/8'; // blanche + une croche
-        case 9: return 'h, ' + toNoteName(note) + '/16'; // blanche + une double croche
-        case 8: return 'h'; // blanche
-        case 7: return 'q.'; // noire pointee
-        case 6: return 'q.'; // noire pointee
-        case 5: return 'q, ' + toNoteName(note) + '/16'; // noire + une double croche
-        case 4: return 'q'; // noire
-        case 3: return '8.'; // croche pointee
-        case 2: return '8'; // croche
-        case 1: return '16'; // double croche
+        case 16: return toNoteName(note) + '/w'; // ronde
+        case 15: return toNoteName(note) + '/h., ' + toNoteName(note) + '/8.'; // blanche pointee + une croche pointee
+        case 14: return toNoteName(note) + '/h., ' + toNoteName(note) + '/8'; // blanche pointee + une croche
+        case 13: return toNoteName(note) + '/h., ' + toNoteName(note) + '/16'; // blanche pointee + une double croche
+        case 12: return toNoteName(note) + '/h.'; // blanche pointee
+        case 11: return toNoteName(note) + '/h, ' + toNoteName(note) + '/8.'; // blanche + une croche pointee
+        case 10: return toNoteName(note) + '/h, ' + toNoteName(note) + '/8'; // blanche + une croche
+        case 9: return toNoteName(note) + '/h, ' + toNoteName(note) + '/16'; // blanche + une double croche
+        case 8: return toNoteName(note) + '/h'; // blanche
+        case 7: return toNoteName(note) + '/q.'; // noire pointee
+        case 6: return toNoteName(note) + '/q.'; // noire pointee
+        case 5: return toNoteName(note) + '/q, ' + toNoteName(note) + '/16'; // noire + une double croche
+        case 4: return toNoteName(note) + '/q'; // noire
+        case 3: return toNoteName(note) + '/8.'; // croche pointee
+        case 2: return toNoteName(note) + '/8'; // croche
+        case 1: return toNoteName(note) + '/16'; // double croche
     }
 
     return "unrecognized durationQuantized: " + durationQuantized + " durationQuantizedStep: " + durationQuantizedStep;

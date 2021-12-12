@@ -1,11 +1,11 @@
 import React, { useRef, useEffect } from 'react';
 
 // https://ourcodeworld.com/articles/read/293/rendering-music-notation-music-sheet-in-javascript-with-vexflow-2
+// https://git.bz-inc.com/mirror/vexflow/-/wikis/Home
 import Vex from 'vexflow'
 
 import { getDuration, toNoteName } from './Helper';
 import { NoteSequence } from '@magenta/music';
-import { idText } from 'typescript';
 
 interface IProps {
     sequence: NoteSequence;
@@ -95,14 +95,35 @@ export const VexFlowVisualizer = (props: IProps) => {
                 const duration = note.quantizedEndStep! - note.quantizedStartStep!;
                 barDuration += duration;
                 notesInBar.push(note);
-                if (barDuration === stepsPerBar) {
+                if (barDuration >= stepsPerBar) {
                     // create a new bar
-                    const vexFlowNotesInBar = convertNotesToVexFlowNotes(notesInBar)
-                    const voice = [{
-                        notesInBar: vexFlowNotesInBar,
-                        clef: props.clef,
-                        stem: 'up'
-                    }];
+                    let vexFlowNotesInBar = undefined;
+                    let voice: Voice[];
+                    if (barDuration === stepsPerBar) {
+                        vexFlowNotesInBar = convertNotesToVexFlowNotes(notesInBar)
+                        voice = [{
+                            notesInBar: vexFlowNotesInBar,
+                            clef: props.clef,
+                            stem: 'up'
+                        }];
+                    } else {
+                        // last note is too long, must be splitted
+                        var lastNote = notesInBar[notesInBar.length - 1];
+                        lastNote.quantizedEndStep -= barDuration - stepsPerBar;
+                        vexFlowNotesInBar = convertNotesToVexFlowNotes(notesInBar)
+                        voice = [{
+                            notesInBar: vexFlowNotesInBar,
+                            clef: props.clef,
+                            stem: 'up'
+                        }];
+
+                        // insert a new note (this will be in the next bar)
+                        const noteToBeInsertedDuration = barDuration - stepsPerBar;
+                        const noteToBeInserted = {...note};
+                        noteToBeInserted.quantizedStartStep = lastNote.quantizedEndStep + 1;
+                        noteToBeInserted.quantizedEndStep = noteToBeInserted.quantizedStartStep + noteToBeInsertedDuration;
+                        insertNote(sequence, noteToBeInserted, i+1);
+                    }
 
                     console.log("displayNoteSequence() notes: " + vexFlowNotesInBar);
 
@@ -115,6 +136,10 @@ export const VexFlowVisualizer = (props: IProps) => {
                 }
             }
         }
+    }
+
+    const insertNote = (sequence: NoteSequence, note: NoteSequence.Note, position: number) => {
+        sequence.notes.splice(position, 0, note);
     }
 
     const convertNotesToVexFlowNotes = (notes: NoteSequence.Note[]) => {
@@ -138,7 +163,7 @@ export const VexFlowVisualizer = (props: IProps) => {
             displaySequence(props.sequence);
         }
     });
-    
+
     return (
         < div id='vexflow-visualizer' ref={myRef} />
     );

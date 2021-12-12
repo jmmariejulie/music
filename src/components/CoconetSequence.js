@@ -1,8 +1,10 @@
 import React from 'react';
 
 import * as mm from '@magenta/music'
+
+import SplitPane from 'react-split-pane';
+
 import { StaffVisualizer } from './StaffVisualizer.js';
-import { VexFlowVisualizer } from './VexFlowVisualizer.tsx';
 import { MultiVexFlowVisualizer } from './MultiVexFlowVisualizer.tsx';
 import { RecorderComponent } from './RecorderComponent';
 
@@ -90,35 +92,36 @@ export class CoconetSequence extends React.Component {
     render() {
         console.log('Music.render() sequence:' + this.state.inputSequence);
         const inputSequenceDefined = this.state.inputSequence !== undefined;
-        const sequence = this.state.multiVoiceOutputSequence? this.state.multiVoiceOutputSequence[0]: undefined;
+        const sequence = this.state.multiVoiceOutputSequence ? this.state.multiVoiceOutputSequence[0] : undefined;
         return (
-            <div>
-                <p>Coconet</p>
+            <SplitPane split="vertical" minSize={50} defaultSize={200}>
                 <div>
-                    <input
-                        type='file'
-                        id='fileInput'
-                        onChange={e => this.handleInputFileChoosen(e.target.files[0])} />
+                    <p>Coconet</p>
+                    <div>
+                        <input
+                            type='file'
+                            id='fileInput'
+                            onChange={e => this.handleInputFileChoosen(e.target.files[0])} />
+                    </div>
+                    <div>
+                        <RecorderComponent setSequence={this.setInputSequence} />
+                    </div>
+                    <br />
+                    <StaffVisualizer sequence={this.state.inputSequence} />
+                    <br />
+                    <div>
+                        <button
+                            onClick={() => this.coconetInputSequence()}>
+                            Create the voices
+                        </button>
+                    </div>
+                    <br />
+                    <StaffVisualizer sequence={this.state.outputSequence} />
                 </div>
                 <div>
-                    <RecorderComponent setSequence={this.setInputSequence} />
+                    <MultiVexFlowVisualizer sequences={this.state.multiVoiceOutputSequence} quantizationStep={this.defaultQuantization} />
                 </div>
-                <br />
-                <StaffVisualizer sequence={this.state.inputSequence} />
-                <br />
-                <div>
-                    <button
-                        onClick={() => this.coconetInputSequence()}>
-                        Create the voices
-                    </button>
-                </div>
-                <br />
-                <StaffVisualizer sequence={this.state.outputSequence} />
-                <MultiVexFlowVisualizer sequences={this.state.multiVoiceOutputSequence} quantizationStep={this.defaultQuantization}/>
-                
-            </div>);
+            </SplitPane>);
     }
-//                <VexFlowVisualizer sequence={sequence} quantizationStep={this.defaultQuantization} clef='treble'/>
-
 }
 
